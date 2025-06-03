@@ -1,6 +1,6 @@
 services:
   budgeteer:
-    image: budgeteer:latest
+    image: anaschhilif/budgeteer:latest
     container_name: budgeteer
     ports:
       - "8080:8080"
@@ -26,6 +26,24 @@ services:
       - "5432:5432"
     networks:
       - monitoring
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    environment:
+      - JENKINS_OPTS=--httpPort=8080
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+    user: root
+    networks:
+      - monitoring
+    depends_on:
+      - postgres
 
   node_exporter:
     image: prom/node-exporter:latest
@@ -105,3 +123,4 @@ volumes:
   caddy_config:
   loki-data:
   grafana-data:
+  jenkins_home:

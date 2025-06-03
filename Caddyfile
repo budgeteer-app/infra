@@ -8,3 +8,7 @@ grafana.budgeteer.chhilif.com {
     tls {$EMAIL}
 }
 
+jenkins.chhilif.com {
+  reverse_proxy jenkins:8081
+  tls {$EMAIL}
+}
