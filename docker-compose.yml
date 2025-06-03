@@ -1,0 +1,107 @@
+services:
+  budgeteer:
+    image: budgeteer:latest
+    container_name: budgeteer
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/budgeteerdb
+      SPRING_DATASOURCE_USERNAME: budgeteeruser
+      SPRING_DATASOURCE_PASSWORD: budgeteerpassword
+      LOKI_URL: http://loki:3100/loki/api/v1/push
+    depends_on:
+      - postgres
+      - loki
+    networks:
+      - monitoring
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_DB: budgeteerdb
+      POSTGRES_USER: budgeteeruser
+      POSTGRES_PASSWORD: budgeteerpassword
+    ports:
+      - "5432:5432"
+    networks:
+      - monitoring
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/proc'
+      - '--path.sysfs=/sys'
+    networks:
+      - monitoring
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - /proc:/host/proc
+      - /sys:/host/sys
+    ports:
+      - "9090:9090"
+    depends_on:
+      - node_exporter
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - monitoring
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    environment:
+      - EMAIL = email
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - budgeteer
+      - grafana
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+
+volumes:
+  caddy_data:
+  caddy_config:
+  loki-data:
+  grafana-data:

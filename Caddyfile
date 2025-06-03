@@ -1,0 +1,10 @@
+devapi.budgeteer.chhilif.com {
+    reverse_proxy budgeteer:8080
+    tls {$EMAIL}
+}
+
+grafana.budgeteer.chhilif.com {
+    reverse_proxy grafana:3000
+    tls {$EMAIL}
+}
+
