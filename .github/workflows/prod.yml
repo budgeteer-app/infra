@@ -20,12 +20,15 @@ jobs:
             
           
             cd ${{ secrets.INFRA_PATH }}
+
+            git stash
+
+            git pull origin main
             
             
             cat > .env << EOF
             DEVAPI_URL=${{ secrets.DEVAPI_URL }}
             GRAFANA_URL=${{ secrets.GRAFANA_URL }}
-            JENKINS_URL=${{ secrets.JENKINS_URL }}
             EMAIL=${{ secrets.EMAIL }}
             EOF
             
