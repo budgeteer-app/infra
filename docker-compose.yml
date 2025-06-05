@@ -100,8 +100,6 @@ services:
   caddy:
     image: caddy:latest
     container_name: caddy
-    environment:
-      - EMAIL = email
     ports:
       - "80:80"
       - "443:443"
