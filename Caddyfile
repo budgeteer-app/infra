@@ -9,6 +9,6 @@
 }
 
 {$BOOKSTACK_URL}{
-    reverse_proxy bookstack:8081
+    reverse_proxy bookstack:80
     tls {$EMAIL}
 }
