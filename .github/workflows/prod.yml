@@ -30,6 +30,14 @@ jobs:
             DEVAPI_URL=${{ secrets.DEVAPI_URL }}
             GRAFANA_URL=${{ secrets.GRAFANA_URL }}
             EMAIL=${{ secrets.EMAIL }}
+            BOOKSTACK_APP_URL=${{ vars.BOOKSTACK_APP_URL }}
+            BOOKSTACK_APP_KEY=${{ secrets.BOOKSTACK_APP_KEY }}
+            BOOKSTACK_DB_HOST=${{ vars.BOOKSTACK_DB_HOST }}
+            BOOKSTACK_DB_PORT=${{ vars.BOOKSTACK_DB_PORT }}
+            BOOKSTACK_DB_USERNAME=${{ vars.BOOKSTACK_DB_USERNAME }}
+            BOOKSTACK_DB_PASSWORD=${{ secrets.BOOKSTACK_DB_PASSWORD }}
+            BOOKSTACK_DB_DATABASE=${{ vars.BOOKSTACK_DB_DATABASE }}
+            BOOKSTACK_MYSQL_ROOT_PASSWORD=${{ secrets.BOOKSTACK_MYSQL_ROOT_PASSWORD }}
             EOF
             
       

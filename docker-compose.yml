@@ -96,6 +96,43 @@ services:
       - grafana
     networks:
       - monitoring
+  
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:latest
+    container_name: bookstack
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - APP_URL=${BOOKSTACK_APP_URL}
+      - APP_KEY=${BOOKSTACK_APP_KEY}
+      - DB_HOST=${BOOKSTACK_DB_HOST}
+      - DB_PORT=${BOOKSTACK_DB_PORT}
+      - DB_USERNAME=${BOOKSTACK_DB_USERNAME} 
+      - DB_PASS=${BOOKSTACK_DB_PASSWORD}
+      - DB_DATABASE=${BOOKSTACK_DB_DATABASE}
+    volumes:
+      - ./bookstack/bookstack_data:/config
+    ports:
+      - "8081:80"
+    depends_on:
+      - bookstack_db
+    restart: unless-stopped
+
+  bookstack_db:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: bookstack_db
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=${BOOKSTACK_MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${BOOKSTACK_DB_DATABASE}
+      - MYSQL_USER=${BOOKSTACK_DB_USERNAME}
+      - MYSQL_PASSWORD=${BOOKSTACK_DB_PASSWORD}
+    volumes:
+      - ./bookstack/bookstack_db_data:/config
+    expose:
+      - "3306"
+    restart: unless-stopped
 
 networks:
   monitoring:
@@ -105,4 +142,3 @@ volumes:
   caddy_config:
   loki-data:
   grafana-data:
-  jenkins_home:
