@@ -108,7 +108,7 @@ services:
       - DB_HOST=${BOOKSTACK_DB_HOST}
       - DB_PORT=${BOOKSTACK_DB_PORT}
       - DB_USERNAME=${BOOKSTACK_DB_USERNAME} 
-      - DB_PASS=${BOOKSTACK_DB_PASSWORD}
+      - DB_PASSWORD=${BOOKSTACK_DB_PASSWORD}
       - DB_DATABASE=${BOOKSTACK_DB_DATABASE}
     volumes:
       - ./bookstack/bookstack_data:/config
