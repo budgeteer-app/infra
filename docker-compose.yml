@@ -2,8 +2,6 @@ services:
   budgeteer:
     image: anaschhilif/budgeteer:latest
     container_name: budgeteer
-    ports:
-      - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/budgeteerdb
       SPRING_DATASOURCE_USERNAME: budgeteeruser
@@ -12,8 +10,6 @@ services:
     depends_on:
       - postgres
       - loki
-    networks:
-      - monitoring
 
   postgres:
     image: postgres:latest
@@ -22,33 +18,21 @@ services:
       POSTGRES_DB: budgeteerdb
       POSTGRES_USER: budgeteeruser
       POSTGRES_PASSWORD: budgeteerpassword
-    ports:
-      - "5432:5432"
-    networks:
-      - monitoring
 
   node_exporter:
     image: prom/node-exporter:latest
     container_name: node_exporter
-    ports:
-      - "9100:9100"
     command:
       - '--path.procfs=/proc'
       - '--path.sysfs=/sys'
-    networks:
-      - monitoring
 
   loki:
     image: grafana/loki:latest
     container_name: loki
-    ports:
-      - "3100:3100"
     volumes:
       - ./loki-config.yml:/etc/loki/local-config.yaml
       - loki-data:/loki
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - monitoring
 
   prometheus:
     image: prom/prometheus:latest
@@ -57,92 +41,20 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - /proc:/host/proc
       - /sys:/host/sys
-    ports:
-      - "9090:9090"
     depends_on:
       - node_exporter
-    networks:
-      - monitoring
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    ports:
-      - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
       - prometheus
       - loki
-    networks:
-      - monitoring
     volumes:
       - grafana-data:/var/lib/grafana
 
-  caddy:
-    image: caddy:latest
-    container_name: caddy
-    ports:
-      - "80:80"
-      - "443:443"
-    env_file:
-      - .env 
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - budgeteer
-      - grafana
-    networks:
-      - monitoring
-  
-  bookstack:
-    image: lscr.io/linuxserver/bookstack:latest
-    container_name: bookstack
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - APP_URL=${BOOKSTACK_APP_URL}
-      - APP_KEY=${BOOKSTACK_APP_KEY}
-      - DB_HOST=${BOOKSTACK_DB_HOST}
-      - DB_PORT=${BOOKSTACK_DB_PORT}
-      - DB_USERNAME=${BOOKSTACK_DB_USERNAME} 
-      - DB_PASSWORD=${BOOKSTACK_DB_PASSWORD}
-      - DB_DATABASE=${BOOKSTACK_DB_DATABASE}
-    volumes:
-      - ./bookstack/bookstack_data:/config
-    ports:
-      - "8081:80"
-    depends_on:
-      - bookstack_db
-    restart: unless-stopped
-    networks:
-      - monitoring
-
-  bookstack_db:
-    image: lscr.io/linuxserver/mariadb:latest
-    container_name: bookstack_db
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - MYSQL_ROOT_PASSWORD=${BOOKSTACK_MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${BOOKSTACK_DB_DATABASE}
-      - MYSQL_USER=${BOOKSTACK_DB_USERNAME}
-      - MYSQL_PASSWORD=${BOOKSTACK_DB_PASSWORD}
-    volumes:
-      - ./bookstack/bookstack_db_data:/config
-    expose:
-      - "3306"
-    restart: unless-stopped
-    networks:
-      - monitoring
-
-networks:
-  monitoring:
-
 volumes:
-  caddy_data:
-  caddy_config:
   loki-data:
   grafana-data:
